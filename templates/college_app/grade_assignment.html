@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Grade Assignment</h1>
+
+    <div class="card">
+        <h3>{{ submission.assignment.title }}</h3>
+        <p><strong>Student:</strong> {{ submission.student.username }}</p>
+        <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y h:i A" }}</p>
+        <p><strong>Max Marks:</strong> {{ submission.assignment.max_marks }}</p>
+        
+        {% if submission.file %}
+        <p><a href="{{ submission.file.url }}" class="btn btn-secondary" download>📎 Download Submission</a></p>
+        {% endif %}
+        
+        {% if submission.comments %}
+        <div style="margin-top: 15px; padding: 15px; background: var(--bg-secondary); border-radius: 8px;">
+            <p><strong>Student Comments:</strong></p>
+            <p>{{ submission.comments }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="marks_obtained">Marks Obtained:</label>
+            <input type="number" id="marks_obtained" name="marks_obtained" min="0" max="{{ submission.assignment.max_marks }}" value="{{ submission.marks_obtained }}" required>
+        </div>
+
+        <div>
+            <label for="teacher_feedback">Teacher Feedback:</label>
+            <textarea id="teacher_feedback" name="teacher_feedback" rows="4">{{ submission.teacher_feedback }}</textarea>
+        </div>
+
+        <button type="submit" class="btn">Save Grade</button>
+        <a href="{% url 'view_assignment_submissions' submission.assignment.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

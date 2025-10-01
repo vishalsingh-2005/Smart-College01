@@ -17,6 +17,13 @@
             <a href="{% url 'manage_invites' %}" class="btn">Manage Users</a>
             <a href="{% url 'create_invite' %}" class="btn btn-success">Create Invite</a>
         </div>
+        
+        <div class="dashboard-card">
+            <h3>💰 Payment Management</h3>
+            <p>Manage fees and payments</p>
+            <a href="{% url 'manage_fee_structures' %}" class="btn">Fee Structures</a>
+            <a href="{% url 'view_all_payments' %}" class="btn">View Payments</a>
+        </div>
         {% endif %}
         
         <div class="dashboard-card">
@@ -61,6 +68,48 @@
             {% endif %}
         </div>
         {% endif %}
+        
+        {% if role == 'student' %}
+        <div class="dashboard-card">
+            <h3>💳 Fee Payment</h3>
+            <p>Pay fees and view history</p>
+            <a href="{% url 'view_student_fees' %}" class="btn">Pay Fees</a>
+            <a href="{% url 'view_payment_history' %}" class="btn">Payment History</a>
+        </div>
+        
+        <div class="dashboard-card">
+            <h3>📝 Assignments</h3>
+            <p>View and submit assignments</p>
+            <a href="{% url 'view_assignments' %}" class="btn">View Assignments</a>
+        </div>
+        
+        <div class="dashboard-card">
+            <h3>🚌 Bus Tracker</h3>
+            <p>Track school bus location</p>
+            <a href="{% url 'view_bus_tracker' %}" class="btn">Track Bus</a>
+        </div>
+        {% endif %}
+        
+        {% if role == 'teacher' %}
+        <div class="dashboard-card">
+            <h3>📝 Assignments</h3>
+            <p>Create and grade assignments</p>
+            <a href="{% url 'view_teacher_assignments' %}" class="btn">My Assignments</a>
+            <a href="{% url 'create_assignment' %}" class="btn btn-success">Create Assignment</a>
+        </div>
+        {% endif %}
+        
+        <div class="dashboard-card">
+            <h3>📢 Notice Board</h3>
+            <p>View important announcements</p>
+            <a href="{% url 'view_notices' %}" class="btn">View Notices</a>
+        </div>
+        
+        <div class="dashboard-card">
+            <h3>📌 Bulletin Board</h3>
+            <p>View bulletins and updates</p>
+            <a href="{% url 'view_bulletins' %}" class="btn">View Bulletins</a>
+        </div>
         
     </div>
 </div>

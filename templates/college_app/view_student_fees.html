@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Fee Payment</h1>
+
+    <div style="margin: 20px 0;">
+        <a href="{% url 'view_payment_history' %}" class="btn btn-secondary">View Payment History</a>
+    </div>
+
+    {% if fee_structures %}
+    <div class="dashboard-grid">
+        {% for fee in fee_structures %}
+        <div class="card">
+            <h3>{{ fee.name }}</h3>
+            <p><strong>Amount:</strong> ${{ fee.amount }}</p>
+            <p><strong>Description:</strong> {{ fee.description }}</p>
+            <p><strong>Due Date:</strong> {{ fee.due_date }}</p>
+            
+            {% if fee.id in paid_fees %}
+            <button class="btn btn-success" disabled>✓ Paid</button>
+            {% else %}
+            <a href="{% url 'make_payment' fee.id %}" class="btn">Pay Now</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <p>No fees available at this time.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

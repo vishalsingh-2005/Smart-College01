@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>My Assignments</h1>
+
+    <div style="margin: 20px 0;">
+        <a href="{% url 'create_assignment' %}" class="btn">Create New Assignment</a>
+    </div>
+
+    {% if assignment_stats %}
+    {% for stat in assignment_stats %}
+    <div class="card">
+        <h3>{{ stat.assignment.title }}</h3>
+        <p>{{ stat.assignment.description }}</p>
+        
+        <div style="margin: 15px 0;">
+            <p><strong>Due Date:</strong> {{ stat.assignment.due_date }}</p>
+            <p><strong>Max Marks:</strong> {{ stat.assignment.max_marks }}</p>
+            <p><strong>Created:</strong> {{ stat.assignment.created_at|date:"M d, Y" }}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0;">
+            <div style="padding: 15px; background: var(--bg-secondary); border-radius: 8px; text-align: center;">
+                <p style="font-size: 24px; font-weight: bold; color: var(--primary-color);">{{ stat.total_students }}</p>
+                <p>Total Students</p>
+            </div>
+            <div style="padding: 15px; background: var(--bg-secondary); border-radius: 8px; text-align: center;">
+                <p style="font-size: 24px; font-weight: bold; color: #28a745;">{{ stat.submitted_count }}</p>
+                <p>Submissions</p>
+            </div>
+            <div style="padding: 15px; background: var(--bg-secondary); border-radius: 8px; text-align: center;">
+                <p style="font-size: 24px; font-weight: bold; color: #ffc107;">{{ stat.graded_count }}</p>
+                <p>Graded</p>
+            </div>
+        </div>
+
+        <a href="{% url 'view_assignment_submissions' stat.assignment.id %}" class="btn">View Submissions</a>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card">
+        <p>No assignments created yet. Create one to get started.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

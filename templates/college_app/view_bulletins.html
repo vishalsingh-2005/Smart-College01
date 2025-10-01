@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Bulletin Board</h1>
+
+    {% if bulletins %}
+    <div class="dashboard-grid">
+        {% for bulletin in bulletins %}
+        <div class="card">
+            {% if bulletin.image %}
+            <img src="{{ bulletin.image.url }}" alt="{{ bulletin.title }}" style="width: 100%; border-radius: 8px; margin-bottom: 15px;">
+            {% endif %}
+            <h3>{{ bulletin.title }}</h3>
+            <p>{{ bulletin.content }}</p>
+            <div style="margin-top: 10px; font-size: 12px; color: var(--text-secondary);">
+                <p><strong>Posted by:</strong> {{ bulletin.posted_by.username }}</p>
+                <p><strong>Date:</strong> {{ bulletin.created_at|date:"M d, Y h:i A" }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <p>No bulletins available.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

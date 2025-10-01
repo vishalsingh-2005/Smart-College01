@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Submissions for: {{ assignment.title }}</h1>
+
+    <div class="card">
+        <h3>Assignment Details</h3>
+        <p><strong>Description:</strong> {{ assignment.description }}</p>
+        <p><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+        <p><strong>Max Marks:</strong> {{ assignment.max_marks }}</p>
+    </div>
+
+    <a href="{% url 'view_teacher_assignments' %}" class="btn btn-secondary" style="margin: 20px 0;">Back to My Assignments</a>
+
+    {% if submissions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Submitted At</th>
+                <th>File</th>
+                <th>Comments</th>
+                <th>Marks</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in submissions %}
+            <tr>
+                <td>{{ submission.student.username }}</td>
+                <td>{{ submission.submitted_at|date:"M d, Y h:i A" }}</td>
+                <td>
+                    {% if submission.file %}
+                    <a href="{{ submission.file.url }}" download>📎 Download</a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ submission.comments|truncatewords:10 }}</td>
+                <td>
+                    {% if submission.marks_obtained %}
+                    <span style="color: #28a745; font-weight: bold;">{{ submission.marks_obtained }} / {{ assignment.max_marks }}</span>
+                    {% else %}
+                    <span style="color: #ffc107;">Not graded</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'grade_assignment' submission.id %}" class="btn btn-secondary">
+                        {% if submission.marks_obtained %}Edit Grade{% else %}Grade{% endif %}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="card">
+        <p>No submissions yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

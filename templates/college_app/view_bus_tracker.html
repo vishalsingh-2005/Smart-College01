@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Bus Tracker</h1>
+
+    {% if bus_routes %}
+    {% for route in bus_routes %}
+    <div class="card">
+        <h3>🚌 Route {{ route.route_number }}: {{ route.name }}</h3>
+        <div style="margin: 15px 0;">
+            <p><strong>Driver:</strong> {{ route.driver_name }}</p>
+            <p><strong>Contact:</strong> {{ route.driver_phone }}</p>
+            <p><strong>Capacity:</strong> {{ route.capacity }} students</p>
+        </div>
+
+        {% for route_id, location in bus_locations.items %}
+        {% if route_id == route.id and location %}
+        <div style="padding: 15px; background: var(--bg-secondary); border-radius: 8px; margin-top: 15px;">
+            <h4>📍 Current Location</h4>
+            <p><strong>Latitude:</strong> {{ location.latitude }}</p>
+            <p><strong>Longitude:</strong> {{ location.longitude }}</p>
+            <p><strong>Status:</strong> <span style="color: #28a745; font-weight: bold;">{{ location.status|title }}</span></p>
+            <p><strong>Last Updated:</strong> {{ location.updated_at|date:"h:i A" }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% if route.id not in bus_locations or not bus_locations.route.id %}
+        <div style="padding: 15px; background: var(--bg-secondary); border-radius: 8px; margin-top: 15px;">
+            <p style="color: var(--text-secondary);">No location data available for this route.</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card">
+        <p>No bus routes available.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

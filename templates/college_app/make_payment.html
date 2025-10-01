@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Make Payment</h1>
+
+    <div class="card">
+        <h2>{{ fee_structure.name }}</h2>
+        <p><strong>Description:</strong> {{ fee_structure.description }}</p>
+        <p><strong>Amount:</strong> <span style="font-size: 24px; color: var(--primary-color); font-weight: bold;">${{ fee_structure.amount }}</span></p>
+        <p><strong>Due Date:</strong> {{ fee_structure.due_date }}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="payment_method">Payment Method:</label>
+            <select id="payment_method" name="payment_method" required>
+                <option value="cash">Cash</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="debit_card">Debit Card</option>
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="online">Online Payment</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn">Confirm Payment</button>
+        <a href="{% url 'view_student_fees' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

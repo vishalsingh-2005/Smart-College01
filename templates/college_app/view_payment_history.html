@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Payment History</h1>
+
+    <div class="card" style="background: linear-gradient(135deg, var(--card-bg), var(--bg-secondary));">
+        <h3>Total Paid: <span style="color: #28a745; font-size: 28px;">${{ total_paid }}</span></h3>
+    </div>
+
+    <a href="{% url 'view_student_fees' %}" class="btn btn-secondary" style="margin: 20px 0;">Back to Fees</a>
+
+    {% if payments %}
+    <table>
+        <thead>
+            <tr>
+                <th>Fee Type</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Receipt Number</th>
+                <th>Payment Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.fee_structure.name }}</td>
+                <td>${{ payment.amount }}</td>
+                <td>{{ payment.payment_method|title }}</td>
+                <td>
+                    {% if payment.status == 'completed' %}
+                    <span style="color: #28a745; font-weight: bold;">✓ Completed</span>
+                    {% elif payment.status == 'pending' %}
+                    <span style="color: #ffc107; font-weight: bold;">⏳ Pending</span>
+                    {% else %}
+                    <span style="color: #dc3545; font-weight: bold;">✗ Failed</span>
+                    {% endif %}
+                </td>
+                <td><strong>{{ payment.receipt_number }}</strong></td>
+                <td>{{ payment.payment_date|date:"M d, Y h:i A" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="card">
+        <p>No payment history found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

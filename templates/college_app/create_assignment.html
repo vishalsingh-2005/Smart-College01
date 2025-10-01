@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Create Assignment</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <label for="title">Assignment Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+
+        <div>
+            <label for="due_date">Due Date:</label>
+            <input type="date" id="due_date" name="due_date" required>
+        </div>
+
+        <div>
+            <label for="max_marks">Maximum Marks:</label>
+            <input type="number" id="max_marks" name="max_marks" min="0" required>
+        </div>
+
+        <div>
+            <label for="file">Attachment (Optional):</label>
+            <input type="file" id="file" name="file">
+        </div>
+
+        <button type="submit" class="btn">Create Assignment</button>
+        <a href="{% url 'view_teacher_assignments' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

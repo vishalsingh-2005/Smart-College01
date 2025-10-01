@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Assignments</h1>
+
+    {% if assignments %}
+    {% for assignment in assignments %}
+    <div class="card">
+        <h3>{{ assignment.title }}</h3>
+        <p>{{ assignment.description }}</p>
+        
+        <div style="margin: 15px 0;">
+            <p><strong>Due Date:</strong> <span style="color: #dc3545;">{{ assignment.due_date }}</span></p>
+            <p><strong>Max Marks:</strong> {{ assignment.max_marks }}</p>
+            <p><strong>Created by:</strong> {{ assignment.created_by.username }}</p>
+            
+            {% if assignment.file %}
+            <p><a href="{{ assignment.file.url }}" class="btn btn-secondary" download>📎 Download Attachment</a></p>
+            {% endif %}
+        </div>
+
+        {% if assignment.id in submitted_assignment_ids %}
+        {% for submission in student_submissions %}
+        {% if submission.assignment.id == assignment.id %}
+        <div style="padding: 15px; background: var(--bg-secondary); border-radius: 8px; margin-top: 10px;">
+            <p style="color: #28a745; font-weight: bold;">✓ Submitted on {{ submission.submitted_at|date:"M d, Y h:i A" }}</p>
+            {% if submission.marks_obtained %}
+            <p><strong>Marks:</strong> {{ submission.marks_obtained }} / {{ assignment.max_marks }}</p>
+            <p><strong>Feedback:</strong> {{ submission.teacher_feedback }}</p>
+            {% else %}
+            <p style="color: #ffc107;">⏳ Grading pending</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <a href="{% url 'submit_assignment' assignment.id %}" class="btn">Submit Assignment</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card">
+        <p>No assignments available.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

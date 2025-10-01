@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Submit Assignment</h1>
+
+    <div class="card">
+        <h2>{{ assignment.title }}</h2>
+        <p><strong>Description:</strong> {{ assignment.description }}</p>
+        <p><strong>Due Date:</strong> {{ assignment.due_date }}</p>
+        <p><strong>Max Marks:</strong> {{ assignment.max_marks }}</p>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <label for="file">Upload File:</label>
+            <input type="file" id="file" name="file" required>
+        </div>
+
+        <div>
+            <label for="comments">Comments (Optional):</label>
+            <textarea id="comments" name="comments" rows="4"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Submit Assignment</button>
+        <a href="{% url 'view_assignments' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
