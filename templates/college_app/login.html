@@ -3,16 +3,18 @@
 {% block title %}Login - SmartCollege{% endblock %}
 
 {% block content %}
-<h1>Login to SmartCollege</h1>
-<form method="POST">
-    {% csrf_token %}
-    <label for="username">Username:</label>
-    <input type="text" name="username" id="username" required>
-    
-    <label for="password">Password:</label>
-    <input type="password" name="password" id="password" required>
-    
-    <button type="submit">Login</button>
-</form>
-<p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+<div class="login-container">
+    <h1>🎓 Login to SmartCollege</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required autofocus>
+        
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required>
+        
+        <button type="submit" style="width: 100%; margin-top: 20px;">Login</button>
+    </form>
+    <p style="text-align: center; margin-top: 20px;">Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+</div>
 {% endblock %}
