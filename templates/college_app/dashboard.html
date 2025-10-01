@@ -56,6 +56,7 @@
             <p>Track and manage attendance</p>
             <a href="{% url 'view_attendance' %}" class="btn">View Attendance</a>
             {% if role == 'admin' or role == 'teacher' %}
+            <a href="{% url 'mark_attendance_manual' %}" class="btn btn-success">Mark Attendance</a>
             <a href="{% url 'attendance_report' %}" class="btn">Attendance Report</a>
             {% endif %}
         </div>

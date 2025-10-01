@@ -78,7 +78,10 @@ def recognize_and_mark_attendance():
                         attendance, created = Attendance.objects.get_or_create(
                             student=user,
                             date=date.today(),
-                            defaults={'status': 'present'}
+                            defaults={
+                                'status': 'present',
+                                'marked_by': None
+                            }
                         )
                         if created:
                             marked_today.add(recognized_user)

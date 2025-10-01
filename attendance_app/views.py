@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.contrib import messages
 from .models import Attendance
 from datetime import date, timedelta
 import json
@@ -78,3 +79,62 @@ def mark_attendance_api(request):
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def mark_attendance_manual(request):
+    if request.user.profile.role not in ['teacher', 'admin']:
+        messages.error(request, 'Only teachers and admins can mark attendance')
+        return redirect('dashboard')
+    
+    students = User.objects.filter(profile__role='student').order_by('username')
+    selected_date = request.GET.get('date', str(date.today()))
+    
+    if request.method == 'POST':
+        selected_date = request.POST.get('date', str(date.today()))
+        
+        for student in students:
+            status_key = f'status_{student.id}'
+            notes_key = f'notes_{student.id}'
+            status = request.POST.get(status_key)
+            notes = request.POST.get(notes_key, '')
+            
+            if status:
+                Attendance.objects.update_or_create(
+                    student=student,
+                    date=selected_date,
+                    defaults={
+                        'status': status,
+                        'marked_by': request.user,
+                        'notes': notes
+                    }
+                )
+        
+        messages.success(request, f'Attendance marked successfully for {selected_date}')
+        return redirect('mark_attendance_manual')
+    
+    existing_attendance = {}
+    for att in Attendance.objects.filter(date=selected_date):
+        existing_attendance[att.student.id] = {
+            'status': att.status,
+            'notes': att.notes
+        }
+    
+    students_data = []
+    for student in students:
+        full_name = f"{student.first_name} {student.last_name}".strip() or student.username
+        attendance_info = existing_attendance.get(student.id, {})
+        students_data.append({
+            'id': student.id,
+            'username': student.username,
+            'full_name': full_name,
+            'current_status': attendance_info.get('status', 'present'),
+            'current_notes': attendance_info.get('notes', '')
+        })
+    
+    context = {
+        'students_data': students_data,
+        'selected_date': selected_date,
+        'status_choices': Attendance.STATUS_CHOICES,
+    }
+    return render(request, 'attendance_app/mark_attendance.html', context)
