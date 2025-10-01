@@ -1,14 +1,20 @@
 import os
-import pickle
 import cv2
 import numpy as np
+import django
 from pathlib import Path
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SmartCollege.settings')
+django.setup()
+
+from django.contrib.auth.models import User
+from attendance_app.models import FaceEncoding
 
 def train_faces():
     """
-    Train face encodings from student images.
+    Train face encodings from student images and save to database.
     Place student images in 'student_images/' folder with naming convention: username.jpg
-    This script will generate face encodings and save them to 'face_encodings.pkl'
+    This script will generate face encodings and save them to the FaceEncoding model
     """
     
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -20,11 +26,17 @@ def train_faces():
         print(f"Please add student images to {student_images_dir}/ with format: username.jpg")
         return
     
-    encodings_data = {}
+    encoded_count = 0
     
     for image_file in student_images_dir.glob('*.jpg'):
         username = image_file.stem
         print(f"Processing {username}...")
+        
+        try:
+            user = User.objects.get(username=username, profile__role='student')
+        except User.DoesNotExist:
+            print(f"Student user {username} not found in database. Skipping...")
+            continue
         
         img = cv2.imread(str(image_file))
         if img is None:
@@ -43,18 +55,27 @@ def train_faces():
             face_roi = gray[y:y+h, x:x+w]
             face_resized = cv2.resize(face_roi, (100, 100))
             
-            encoding = face_resized.flatten()
-            encodings_data[username] = encoding
-            print(f"Encoded face for {username}")
+            encoding = face_resized.flatten().astype(np.float32)
+            encoding_bytes = encoding.tobytes()
+            
+            face_encoding, created = FaceEncoding.objects.update_or_create(
+                student=user,
+                defaults={'encoding': encoding_bytes}
+            )
+            
+            if created:
+                print(f"Created face encoding for {username}")
+            else:
+                print(f"Updated face encoding for {username}")
+            
+            encoded_count += 1
             break
     
-    if encodings_data:
-        with open('face_encodings.pkl', 'wb') as f:
-            pickle.dump(encodings_data, f)
-        print(f"\nSuccessfully trained {len(encodings_data)} faces!")
-        print("Encodings saved to face_encodings.pkl")
+    if encoded_count > 0:
+        print(f"\nSuccessfully trained {encoded_count} faces!")
+        print("Encodings saved to database (FaceEncoding model)")
     else:
-        print("No faces were encoded. Please check your images.")
+        print("No faces were encoded. Please check your images and ensure student users exist in the database.")
 
 if __name__ == '__main__':
     train_faces()

@@ -1,6 +1,4 @@
 import os
-import sys
-import pickle
 import cv2
 import numpy as np
 import django
@@ -10,24 +8,29 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SmartCollege.settings')
 django.setup()
 
 from django.contrib.auth.models import User
-from attendance_app.models import Attendance
+from attendance_app.models import Attendance, FaceEncoding
 from datetime import date
 
 def recognize_and_mark_attendance():
     """
     Use webcam to recognize faces and mark attendance.
+    Loads face encodings from the database (FaceEncoding model).
     Press 'q' to quit.
     """
     
-    if not Path('face_encodings.pkl').exists():
-        print("Error: face_encodings.pkl not found!")
+    face_encodings_db = FaceEncoding.objects.all()
+    
+    if not face_encodings_db.exists():
+        print("Error: No face encodings found in database!")
         print("Please run train_faces.py first to generate face encodings.")
         return
     
-    with open('face_encodings.pkl', 'rb') as f:
-        known_encodings = pickle.load(f)
+    known_encodings = {}
+    for face_enc in face_encodings_db:
+        encoding_array = np.frombuffer(face_enc.encoding, dtype=np.float32)
+        known_encodings[face_enc.student.username] = encoding_array
     
-    print(f"Loaded {len(known_encodings)} known faces")
+    print(f"Loaded {len(known_encodings)} known faces from database")
     
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     
@@ -53,7 +56,7 @@ def recognize_and_mark_attendance():
         for (x, y, w, h) in faces:
             face_roi = gray[y:y+h, x:x+w]
             face_resized = cv2.resize(face_roi, (100, 100))
-            face_encoding = face_resized.flatten()
+            face_encoding = face_resized.flatten().astype(np.float32)
             
             min_distance = float('inf')
             recognized_user = None

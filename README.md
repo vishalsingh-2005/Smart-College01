@@ -46,7 +46,7 @@ A comprehensive Django-based college management system with five integrated appl
 
 ### Prerequisites
 - Python 3.11 or higher
-- Redis server (for Channels)
+- Webcam (for face recognition attendance)
 
 ### Step 1: Install Dependencies
 ```bash
@@ -74,12 +74,7 @@ python manage.py createsuperuser
 python manage.py collectstatic --noinput
 ```
 
-### Step 5: Start Redis Server (for Chat)
-```bash
-redis-server
-```
-
-### Step 6: Run the Development Server
+### Step 5: Run the Development Server
 ```bash
 python manage.py runserver 0.0.0.0:5000
 ```
@@ -138,8 +133,10 @@ SmartCollege/
 
 ## Notes
 
-- Make sure Redis is running before starting the server for chat functionality
+- Chat uses an in-memory channel layer for development (no Redis required)
+- For production chat with multiple server instances, consider using Redis channel layer
 - For face recognition, ensure you have proper webcam access
+- Face encodings are stored in the database (FaceEncoding model)
 - Default database is SQLite; change in settings.py for production use
 - Configure ALLOWED_HOSTS in settings.py for deployment
 
