@@ -10,6 +10,15 @@
     <h2>Quick Links</h2>
     <div class="dashboard-grid">
         
+        {% if role == 'admin' %}
+        <div class="dashboard-card">
+            <h3>👥 User Management</h3>
+            <p>Create and manage user invites</p>
+            <a href="{% url 'manage_invites' %}" class="btn">Manage Users</a>
+            <a href="{% url 'create_invite' %}" class="btn btn-success">Create Invite</a>
+        </div>
+        {% endif %}
+        
         <div class="dashboard-card">
             <h3>📚 Library</h3>
             <p>Access documents and resources</p>

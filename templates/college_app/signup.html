@@ -5,26 +5,24 @@
 {% block content %}
 <div class="signup-container">
     <h1>🎓 Sign Up for SmartCollege</h1>
+    <p style="text-align: center; color: var(--text-secondary); margin-bottom: 20px;">
+        You need an invite from an admin to create an account.
+    </p>
     <form method="POST">
         {% csrf_token %}
-        <label for="username">Username:</label>
+        <label for="username">Username (provided by admin):</label>
         <input type="text" name="username" id="username" required autofocus>
+        
+        <label for="temp_password">Temporary Password (provided by admin):</label>
+        <input type="text" name="temp_password" id="temp_password" required>
         
         <label for="email">Email:</label>
         <input type="email" name="email" id="email" required>
         
-        <label for="password">Password:</label>
+        <label for="password">New Password:</label>
         <input type="password" name="password" id="password" required>
         
-        <label for="role">Role:</label>
-        <select name="role" id="role" required>
-            <option value="student">Student</option>
-            <option value="teacher">Teacher</option>
-            <option value="doctor">Doctor</option>
-            <option value="admin">Admin</option>
-        </select>
-        
-        <button type="submit" style="width: 100%; margin-top: 20px;">Sign Up</button>
+        <button type="submit" style="width: 100%; margin-top: 20px;">Activate Account</button>
     </form>
     <p style="text-align: center; margin-top: 20px;">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
 </div>

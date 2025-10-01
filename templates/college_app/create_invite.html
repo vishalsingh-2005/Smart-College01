@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Create User Invite - SmartCollege{% endblock %}
+
+{% block content %}
+<h1>Create User Invite</h1>
+
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
+        
+        <label for="role">Role:</label>
+        <select name="role" id="role" required>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="doctor">Doctor</option>
+        </select>
+        
+        <div style="margin-top: 20px;">
+            <button type="submit">Create Invite</button>
+            <a href="{% url 'manage_invites' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="margin-top: 20px; background: #fff3cd; border-color: #ffc107;">
+    <h3>📝 Note</h3>
+    <p>A temporary password will be generated automatically. Share both the username and temporary password with the user securely.</p>
+</div>
+{% endblock %}
