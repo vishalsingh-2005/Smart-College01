@@ -27,6 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+import os
+CSRF_TRUSTED_ORIGINS = []
+if 'REPLIT_DOMAINS' in os.environ:
+    for domain in os.environ['REPLIT_DOMAINS'].split(','):
+        CSRF_TRUSTED_ORIGINS.append(f'https://{domain.strip()}')
+
 
 # Application definition
 

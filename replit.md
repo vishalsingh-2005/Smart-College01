@@ -6,6 +6,15 @@ SmartCollege is a comprehensive Django-based college management system that inte
 
 The application is built using Django 5.2.7 as the primary web framework, with Django Channels enabling real-time WebSocket communication for the chat feature. Face recognition capabilities are implemented using OpenCV for automated attendance marking. The system uses Django's built-in ORM for database operations, currently configured with SQLite but designed to be database-agnostic.
 
+## Recent Changes (October 1, 2025)
+
+**Fixed Critical Errors:**
+1. ✅ Resolved 403 Forbidden error on POST requests by adding CSRF_TRUSTED_ORIGINS configuration for Replit proxy domains
+2. ✅ Added REST API endpoint at `/attendance/api/mark/` for programmatic attendance marking
+3. ✅ Configured CSRF_TRUSTED_ORIGINS to dynamically read from REPLIT_DOMAINS environment variable
+
+**Application Status:** Fully functional and ready for use
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
