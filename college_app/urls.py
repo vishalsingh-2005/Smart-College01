@@ -6,15 +6,15 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('admin/create-invite/', views.create_user_invite, name='create_invite'),
-    path('admin/manage-invites/', views.manage_invites, name='manage_invites'),
-    path('admin/delete-invite/<int:invite_id>/', views.delete_invite, name='delete_invite'),
+    path('manage/create-invite/', views.create_user_invite, name='create_invite'),
+    path('manage/invites/', views.manage_invites, name='manage_invites'),
+    path('manage/delete-invite/<int:invite_id>/', views.delete_invite, name='delete_invite'),
     
     # Admin - Fee Management
-    path('admin/fee-structures/', views.manage_fee_structures, name='manage_fee_structures'),
-    path('admin/create-fee-structure/', views.create_fee_structure, name='create_fee_structure'),
-    path('admin/delete-fee-structure/<int:fee_id>/', views.delete_fee_structure, name='delete_fee_structure'),
-    path('admin/payments/', views.view_all_payments, name='view_all_payments'),
+    path('manage/fee-structures/', views.manage_fee_structures, name='manage_fee_structures'),
+    path('manage/create-fee-structure/', views.create_fee_structure, name='create_fee_structure'),
+    path('manage/delete-fee-structure/<int:fee_id>/', views.delete_fee_structure, name='delete_fee_structure'),
+    path('manage/payments/', views.view_all_payments, name='view_all_payments'),
     
     # Student - Fee Payment
     path('student/fees/', views.view_student_fees, name='view_student_fees'),
