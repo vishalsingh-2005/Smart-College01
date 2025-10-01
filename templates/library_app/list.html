@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Documents Library{% endblock %}
+
+{% block content %}
+<h1>E-Library Documents</h1>
+{% if user.profile.role == 'teacher' or user.profile.role == 'admin' %}
+<a href="{% url 'upload_document' %}" class="btn">Upload New Document</a>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Uploaded By</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in documents %}
+        <tr>
+            <td>{{ doc.title }}</td>
+            <td>{{ doc.description|truncatewords:15 }}</td>
+            <td>{{ doc.uploaded_by.username }}</td>
+            <td>{{ doc.uploaded_at|date:"M d, Y" }}</td>
+            <td><a href="{% url 'download_document' doc.id %}" class="btn">Download</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No documents available</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

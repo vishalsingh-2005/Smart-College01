@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Report{% endblock %}
+{% block content %}
+<h1>Attendance Report (Last 7 Days)</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for att in attendance_records %}
+        <tr>
+            <td>{{ att.student.username }}</td>
+            <td>{{ att.date }}</td>
+            <td>{{ att.time|date:"H:i" }}</td>
+            <td>{{ att.status|title }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No attendance records in the last 7 days</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

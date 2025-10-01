@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<h1>Available Chats</h1>
+<p>Select a user to start chatting:</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for partner in chat_partners %}
+        <tr>
+            <td>{{ partner.first_name|default:partner.username }}</td>
+            <td>{{ partner.username }}</td>
+            <td><a href="{% url 'chat_room' partner.username %}" class="btn">Open Chat</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">No users available to chat with</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

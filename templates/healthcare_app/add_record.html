@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Add Health Record{% endblock %}
+{% block content %}
+<h1>Add Health Record</h1>
+<form method="POST">
+    {% csrf_token %}
+    <label for="student_id">Select Student:</label>
+    <select name="student_id" id="student_id" required>
+        {% for student in students %}
+        <option value="{{ student.id }}">{{ student.username }}</option>
+        {% endfor %}
+    </select>
+    <label for="description">Symptoms/Description:</label>
+    <textarea name="description" id="description" rows="4" required></textarea>
+    <label for="diagnosis">Diagnosis:</label>
+    <textarea name="diagnosis" id="diagnosis" rows="3"></textarea>
+    <label for="prescription">Prescription:</label>
+    <textarea name="prescription" id="prescription" rows="3"></textarea>
+    <button type="submit">Save Record</button>
+</form>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - SmartCollege{% endblock %}
+
+{% block content %}
+<h1>Sign Up for SmartCollege</h1>
+<form method="POST">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username" required>
+    
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" required>
+    
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" required>
+    
+    <label for="role">Role:</label>
+    <select name="role" id="role" required>
+        <option value="student">Student</option>
+        <option value="teacher">Teacher</option>
+        <option value="doctor">Doctor</option>
+        <option value="admin">Admin</option>
+    </select>
+    
+    <button type="submit">Sign Up</button>
+</form>
+<p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+{% endblock %}

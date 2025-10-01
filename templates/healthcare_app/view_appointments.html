@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block content %}
+<h1>Appointments</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Doctor</th>
+            <th>Date & Time</th>
+            <th>Reason</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appt in appointments %}
+        <tr>
+            <td>{{ appt.student.username }}</td>
+            <td>Dr. {{ appt.doctor.username }}</td>
+            <td>{{ appt.appointment_date|date:"M d, Y H:i" }}</td>
+            <td>{{ appt.reason|truncatewords:10 }}</td>
+            <td>{{ appt.status|title }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No appointments found</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
