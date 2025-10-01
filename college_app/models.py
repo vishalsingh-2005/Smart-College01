@@ -41,3 +41,123 @@ class UserInvite(models.Model):
     @staticmethod
     def generate_temp_password():
         return secrets.token_urlsafe(12)
+
+
+class FeeStructure(models.Model):
+    name = models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField()
+    due_date = models.DateField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.name} - ${self.amount}"
+
+
+class Payment(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    )
+    
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    fee_structure = models.ForeignKey(FeeStructure, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=50, default='cash')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    transaction_id = models.CharField(max_length=100, blank=True)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    receipt_number = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return f"{self.student.username} - {self.fee_structure.name} - ${self.amount}"
+
+
+class Notice(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    target_role = models.CharField(max_length=20, choices=Profile.ROLE_CHOICES, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.title
+
+
+class Bulletin(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    image = models.ImageField(upload_to='bulletins/', blank=True, null=True)
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.title
+
+
+class BusRoute(models.Model):
+    route_number = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=200)
+    driver_name = models.CharField(max_length=100)
+    driver_phone = models.CharField(max_length=15)
+    stops = models.TextField(help_text="Comma-separated list of stops")
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    
+    def __str__(self):
+        return f"Route {self.route_number} - {self.name}"
+
+
+class BusLocation(models.Model):
+    bus_route = models.ForeignKey(BusRoute, on_delete=models.CASCADE, related_name='locations')
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    current_stop = models.CharField(max_length=200, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.bus_route.route_number} - {self.updated_at}"
+
+
+class Assignment(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    subject = models.CharField(max_length=100)
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_assignments')
+    due_date = models.DateTimeField()
+    max_marks = models.IntegerField(default=100)
+    attachment = models.FileField(upload_to='assignments/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.title} - {self.subject}"
+
+
+class Submission(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='submissions')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
+    file = models.FileField(upload_to='submissions/')
+    comments = models.TextField(blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    marks_obtained = models.IntegerField(null=True, blank=True)
+    teacher_feedback = models.TextField(blank=True)
+    graded_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ['assignment', 'student']
+    
+    def __str__(self):
+        return f"{self.student.username} - {self.assignment.title}"
