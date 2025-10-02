@@ -8,9 +8,14 @@ from django.db.models import Q
 from django.db import IntegrityError
 from datetime import datetime
 import uuid
+import razorpay
+import os
+import hmac
+import hashlib
 from .models import (Profile, UserInvite, FeeStructure, Payment, Notice, 
                      Bulletin, BusRoute, BusLocation, Assignment, Submission, CollegeInfo)
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 def signup_view(request):
@@ -296,45 +301,103 @@ def make_payment(request, fee_id):
     
     fee_structure = get_object_or_404(FeeStructure, id=fee_id)
     
-    if Payment.objects.filter(student=request.user, fee_structure=fee_structure).exists():
+    if Payment.objects.filter(student=request.user, fee_structure=fee_structure, status='completed').exists():
         messages.error(request, 'You have already paid this fee')
         return redirect('view_student_fees')
     
-    if request.method == 'POST':
-        payment_method = request.POST.get('payment_method')
-        account_number = request.POST.get('account_number', '').strip()
-        ifsc_code = request.POST.get('ifsc_code', '').strip().upper()
-        
-        if not account_number or not ifsc_code:
-            messages.error(request, 'Account Number and IFSC Code are required')
-            return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
-        
-        if not account_number.isdigit() or len(account_number) < 9 or len(account_number) > 18:
-            messages.error(request, 'Invalid Account Number. It should be 9-18 digits')
-            return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
-        
-        if len(ifsc_code) != 11 or not ifsc_code[:4].isalpha() or not ifsc_code[4] == '0' or not ifsc_code[5:].isalnum():
-            messages.error(request, 'Invalid IFSC Code. Format: ABCD0123456')
-            return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
-        
-        receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
-        transaction_id = f"TXN-{uuid.uuid4().hex[:12].upper()}"
+    razorpay_key_id = os.environ.get('RAZORPAY_KEY_ID', '')
+    razorpay_key_secret = os.environ.get('RAZORPAY_KEY_SECRET', '')
+    
+    if not razorpay_key_id or not razorpay_key_secret:
+        messages.error(request, 'Payment gateway is not configured. Please contact administrator.')
+        return redirect('view_student_fees')
+    
+    client = razorpay.Client(auth=(razorpay_key_id, razorpay_key_secret))
+    
+    amount_in_paise = int(float(fee_structure.amount) * 100)
+    
+    receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
+    
+    order_data = {
+        'amount': amount_in_paise,
+        'currency': 'INR',
+        'receipt': receipt_number,
+        'payment_capture': 1
+    }
+    
+    try:
+        razorpay_order = client.order.create(data=order_data)
         
         payment = Payment.objects.create(
             student=request.user,
             fee_structure=fee_structure,
             amount=fee_structure.amount,
-            payment_method=payment_method,
-            account_number=account_number,
-            ifsc_code=ifsc_code,
-            status='completed',
+            payment_method='razorpay',
+            status='pending',
             receipt_number=receipt_number,
-            transaction_id=transaction_id
+            razorpay_order_id=razorpay_order['id']
         )
         
-        return redirect('payment_success', payment_id=payment.id)
+        context = {
+            'fee_structure': fee_structure,
+            'razorpay_order_id': razorpay_order['id'],
+            'razorpay_key_id': razorpay_key_id,
+            'amount': amount_in_paise,
+            'payment_id': payment.id,
+            'user_name': request.user.get_full_name() or request.user.username,
+            'user_email': request.user.email,
+            'user_phone': request.user.profile.phone or '',
+        }
+        
+        return render(request, 'college_app/make_payment.html', context)
+        
+    except Exception as e:
+        messages.error(request, f'Error creating payment order: {str(e)}')
+        return redirect('view_student_fees')
+
+
+@csrf_exempt
+@login_required
+def verify_payment(request):
+    if request.method == 'POST':
+        razorpay_payment_id = request.POST.get('razorpay_payment_id')
+        razorpay_order_id = request.POST.get('razorpay_order_id')
+        razorpay_signature = request.POST.get('razorpay_signature')
+        
+        razorpay_key_secret = os.environ.get('RAZORPAY_KEY_SECRET', '')
+        
+        try:
+            payment = Payment.objects.get(razorpay_order_id=razorpay_order_id, student=request.user)
+            
+            generated_signature = hmac.new(
+                razorpay_key_secret.encode(),
+                f"{razorpay_order_id}|{razorpay_payment_id}".encode(),
+                hashlib.sha256
+            ).hexdigest()
+            
+            if generated_signature == razorpay_signature:
+                payment.razorpay_payment_id = razorpay_payment_id
+                payment.razorpay_signature = razorpay_signature
+                payment.transaction_id = razorpay_payment_id
+                payment.status = 'completed'
+                payment.save()
+                
+                messages.success(request, 'Payment successful!')
+                return redirect('payment_success', payment_id=payment.id)
+            else:
+                payment.status = 'failed'
+                payment.save()
+                messages.error(request, 'Payment verification failed. Please contact support.')
+                return redirect('view_student_fees')
+                
+        except Payment.DoesNotExist:
+            messages.error(request, 'Payment record not found')
+            return redirect('view_student_fees')
+        except Exception as e:
+            messages.error(request, f'Error verifying payment: {str(e)}')
+            return redirect('view_student_fees')
     
-    return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
+    return redirect('dashboard')
 
 
 @login_required

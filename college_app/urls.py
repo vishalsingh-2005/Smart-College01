@@ -22,6 +22,7 @@ urlpatterns = [
     # Student - Fee Payment
     path('student/fees/', views.view_student_fees, name='view_student_fees'),
     path('student/make-payment/<int:fee_id>/', views.make_payment, name='make_payment'),
+    path('student/verify-payment/', views.verify_payment, name='verify_payment'),
     path('student/payment-success/<int:payment_id>/', views.payment_success, name='payment_success'),
     path('student/payment-history/', views.view_payment_history, name='view_payment_history'),
     

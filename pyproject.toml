@@ -12,4 +12,5 @@ dependencies = [
     "numpy>=2.3.3",
     "opencv-python-headless>=4.11.0.86",
     "pillow>=11.3.0",
+    "razorpay>=2.0.0",
 ]

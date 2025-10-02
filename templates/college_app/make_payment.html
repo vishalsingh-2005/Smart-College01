@@ -7,66 +7,74 @@
     <div class="card">
         <h2>{{ fee_structure.name }}</h2>
         <p><strong>Description:</strong> {{ fee_structure.description }}</p>
-        <p><strong>Amount:</strong> <span style="font-size: 24px; color: var(--primary-color); font-weight: bold;">${{ fee_structure.amount }}</span></p>
+        <p><strong>Amount:</strong> <span style="font-size: 24px; color: var(--primary-color); font-weight: bold;">₹{{ fee_structure.amount }}</span></p>
         <p><strong>Due Date:</strong> {{ fee_structure.due_date }}</p>
     </div>
 
-    <form method="POST" id="paymentForm">
-        {% csrf_token %}
-        <div>
-            <label for="payment_method">Payment Method:</label>
-            <select id="payment_method" name="payment_method" required>
-                <option value="online">Online Payment</option>
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="debit_card">Debit Card</option>
-            </select>
-        </div>
-
-        <div style="margin-top: 15px;">
-            <label for="account_number">Account Number: *</label>
-            <input type="text" id="account_number" name="account_number" required 
-                   placeholder="Enter 9-18 digit account number" 
-                   pattern="[0-9]{9,18}" 
-                   title="Account number should be 9-18 digits">
-        </div>
-
-        <div style="margin-top: 15px;">
-            <label for="ifsc_code">IFSC Code: *</label>
-            <input type="text" id="ifsc_code" name="ifsc_code" required 
-                   placeholder="e.g., SBIN0001234" 
-                   maxlength="11"
-                   style="text-transform: uppercase;"
-                   title="IFSC code should be 11 characters (e.g., SBIN0001234)">
-        </div>
-
-        <button type="submit" class="btn" style="margin-top: 20px;">Proceed to Payment</button>
+    <div class="card" style="margin-top: 20px;">
+        <h3>Payment Options</h3>
+        <p>Click the button below to proceed with secure payment via Razorpay.</p>
+        <p style="color: var(--text-secondary); font-size: 14px;">
+            ✓ Credit Card | Debit Card | UPI | Net Banking | Wallets
+        </p>
+        
+        <button id="rzp-button" class="btn" style="margin-top: 20px; font-size: 16px; padding: 15px 30px;">
+            💳 Pay ₹{{ fee_structure.amount }} Securely
+        </button>
+        
         <a href="{% url 'view_student_fees' %}" class="btn btn-secondary" style="margin-top: 20px;">Cancel</a>
-    </form>
+    </div>
 
-    <script>
-    document.getElementById('paymentForm').addEventListener('submit', function(e) {
-        const accountNumber = document.getElementById('account_number').value.trim();
-        const ifscCode = document.getElementById('ifsc_code').value.trim().toUpperCase();
-        
-        if (!accountNumber || !ifscCode) {
-            e.preventDefault();
-            alert('Please fill in all required fields');
-            return false;
-        }
-        
-        if (!/^\d{9,18}$/.test(accountNumber)) {
-            e.preventDefault();
-            alert('Invalid Account Number. It should be 9-18 digits');
-            return false;
-        }
-        
-        if (ifscCode.length !== 11) {
-            e.preventDefault();
-            alert('Invalid IFSC Code. It should be exactly 11 characters');
-            return false;
-        }
-    });
-    </script>
+    <div class="card" style="margin-top: 20px; background: var(--bg-secondary);">
+        <h4 style="margin-top: 0;">🔒 Secure Payment</h4>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 0;">
+            Your payment is secured by Razorpay. We never store your card details. All transactions are encrypted and secure.
+        </p>
+    </div>
 </div>
+
+<form id="razorpay-form" action="{% url 'verify_payment' %}" method="POST" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+</form>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('rzp-button').onclick = function(e) {
+    e.preventDefault();
+    
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "INR",
+        "name": "SmartCollege",
+        "description": "{{ fee_structure.name }}",
+        "order_id": "{{ razorpay_order_id }}",
+        "prefill": {
+            "name": "{{ user_name }}",
+            "email": "{{ user_email }}",
+            "contact": "{{ user_phone }}"
+        },
+        "theme": {
+            "color": "#007bff"
+        },
+        "handler": function (response) {
+            document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+            document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+            document.getElementById('razorpay_signature').value = response.razorpay_signature;
+            document.getElementById('razorpay-form').submit();
+        },
+        "modal": {
+            "ondismiss": function() {
+                alert('Payment cancelled. You can try again when ready.');
+            }
+        }
+    };
+    
+    var rzp = new Razorpay(options);
+    rzp.open();
+};
+</script>
 {% endblock %}
