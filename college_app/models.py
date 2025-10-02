@@ -10,11 +10,26 @@ class Profile(models.Model):
         ('doctor', 'Doctor'),
     )
     
+    SEMESTER_CHOICES = (
+        (1, '1st Semester'),
+        (2, '2nd Semester'),
+        (3, '3rd Semester'),
+        (4, '4th Semester'),
+        (5, '5th Semester'),
+        (6, '6th Semester'),
+        (7, '7th Semester'),
+        (8, '8th Semester'),
+    )
+    
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    photo = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    roll_number = models.CharField(max_length=50, blank=True, unique=True, null=True)
+    course = models.CharField(max_length=100, blank=True)
+    semester = models.IntegerField(choices=SEMESTER_CHOICES, null=True, blank=True)
     
     def __str__(self):
         return f"{self.user.username} - {self.role}"

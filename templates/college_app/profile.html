@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - SmartCollege{% endblock %}
+
+{% block content %}
+<div class="profile-container" style="max-width: 800px; margin: 0 auto;">
+    <h1>👤 My Profile</h1>
+    
+    <div class="profile-card" style="background: white; padding: 30px; border-radius: 10px; margin-top: 20px;">
+        <div style="display: flex; align-items: center; gap: 30px; margin-bottom: 30px;">
+            {% if profile.photo %}
+            <img src="{{ profile.photo.url }}" alt="Profile Photo" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover;">
+            {% else %}
+            <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
+                {{ user.first_name.0|default:user.username.0|upper }}
+            </div>
+            {% endif %}
+            <div>
+                <h2 style="margin: 0;">{{ user.first_name }} {{ user.last_name }}</h2>
+                <p style="color: #666; margin: 5px 0;">@{{ user.username }}</p>
+                <span style="background: #667eea; color: white; padding: 5px 15px; border-radius: 20px; font-size: 14px;">{{ profile.get_role_display }}</span>
+            </div>
+        </div>
+        
+        <div class="profile-details" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+            <div>
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Email</label>
+                <p style="margin: 0; color: #666;">{{ user.email|default:"Not set" }}</p>
+            </div>
+            
+            <div>
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Phone</label>
+                <p style="margin: 0; color: #666;">{{ profile.phone|default:"Not set" }}</p>
+            </div>
+            
+            <div>
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Date of Birth</label>
+                <p style="margin: 0; color: #666;">{{ profile.date_of_birth|date:"F d, Y"|default:"Not set" }}</p>
+            </div>
+            
+            {% if profile.role == 'student' %}
+            <div>
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Roll Number</label>
+                <p style="margin: 0; color: #666;">{{ profile.roll_number|default:"Not set" }}</p>
+            </div>
+            
+            <div>
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Course</label>
+                <p style="margin: 0; color: #666;">{{ profile.course|default:"Not set" }}</p>
+            </div>
+            
+            <div>
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Semester</label>
+                <p style="margin: 0; color: #666;">{{ profile.get_semester_display|default:"Not set" }}</p>
+            </div>
+            {% endif %}
+            
+            <div style="grid-column: 1 / -1;">
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Address</label>
+                <p style="margin: 0; color: #666;">{{ profile.address|default:"Not set" }}</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <a href="{% url 'edit_profile' %}" class="btn" style="background: #667eea;">Edit Profile</a>
+            <a href="{% url 'dashboard' %}" class="btn">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

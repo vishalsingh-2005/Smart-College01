@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
+from django.db import IntegrityError
 from datetime import datetime
 import uuid
 from .models import (Profile, UserInvite, FeeStructure, Payment, Notice, 
@@ -79,6 +80,62 @@ def dashboard_view(request):
         'role': profile.role,
     }
     return render(request, 'college_app/dashboard.html', context)
+
+
+@login_required
+def profile_view(request):
+    profile = request.user.profile
+    context = {
+        'user': request.user,
+        'profile': profile,
+    }
+    return render(request, 'college_app/profile.html', context)
+
+
+@login_required
+def edit_profile(request):
+    profile = request.user.profile
+    
+    if request.method == 'POST':
+        user = request.user
+        user.first_name = request.POST.get('first_name', '')
+        user.last_name = request.POST.get('last_name', '')
+        user.email = request.POST.get('email', '')
+        user.save()
+        
+        profile.phone = request.POST.get('phone', '')
+        profile.address = request.POST.get('address', '')
+        
+        date_of_birth = request.POST.get('date_of_birth')
+        if date_of_birth:
+            profile.date_of_birth = date_of_birth
+        
+        if profile.role == 'student':
+            roll_number = request.POST.get('roll_number', '').strip()
+            profile.roll_number = roll_number if roll_number else None
+            profile.course = request.POST.get('course', '')
+            semester = request.POST.get('semester')
+            if semester:
+                profile.semester = int(semester)
+            else:
+                profile.semester = None
+        
+        if 'photo' in request.FILES:
+            profile.photo = request.FILES['photo']
+        
+        try:
+            profile.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile')
+        except IntegrityError:
+            messages.error(request, 'This roll number is already in use. Please use a unique roll number.')
+            return render(request, 'college_app/edit_profile.html', {'user': request.user, 'profile': profile})
+    
+    context = {
+        'user': request.user,
+        'profile': profile,
+    }
+    return render(request, 'college_app/edit_profile.html', context)
 
 
 @login_required
