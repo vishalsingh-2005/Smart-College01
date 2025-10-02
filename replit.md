@@ -6,9 +6,16 @@ SmartCollege is a comprehensive Django-based college management system that inte
 
 The application is built using Django 5.2.7 as the primary web framework, with Django Channels enabling real-time WebSocket communication for the chat feature. Face recognition capabilities are implemented using OpenCV for automated attendance marking. The system uses Django's built-in ORM for database operations, currently configured with SQLite but designed to be database-agnostic.
 
-## Recent Changes (October 1, 2025)
+## Recent Changes (October 2, 2025)
 
 **Latest Updates:**
+1. ✅ Configured Razorpay payment gateway keys for fee payment processing
+2. ✅ Chatbot interface already implemented with floating button and modal window
+3. ✅ Added admin user management functionality (activate/deactivate users)
+4. ✅ Enhanced login security to block deactivated users from accessing the system
+5. ✅ Dynamic animated background already in place with gradient shifts
+
+**Previous Updates (October 1, 2025):**
 1. ✅ Fixed URL routing conflict - Changed admin management URLs from `/admin/` to `/manage/` to avoid conflicts with Django's built-in admin interface
 2. ✅ Added comprehensive payment management system for admins (create fee structures, view all payments)
 3. ✅ Added student fee payment interface with payment history
@@ -18,11 +25,9 @@ The application is built using Django 5.2.7 as the primary web framework, with D
 7. ✅ Added assignment submission system for students
 8. ✅ Implemented strict role-based access control with ownership checks for teacher assignments
 9. ✅ Updated dashboard with all new features for each role
-
-**Previous Fixes:**
-1. ✅ Resolved 403 Forbidden error on POST requests by adding CSRF_TRUSTED_ORIGINS configuration
-2. ✅ Added REST API endpoint at `/attendance/api/mark/` for programmatic attendance marking
-3. ✅ Configured CSRF_TRUSTED_ORIGINS to dynamically read from REPLIT_DOMAINS environment variable
+10. ✅ Resolved 403 Forbidden error on POST requests by adding CSRF_TRUSTED_ORIGINS configuration
+11. ✅ Added REST API endpoint at `/attendance/api/mark/` for programmatic attendance marking
+12. ✅ Configured CSRF_TRUSTED_ORIGINS to dynamically read from REPLIT_DOMAINS environment variable
 
 **Application Status:** Fully functional and ready for use
 
