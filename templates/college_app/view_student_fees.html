@@ -1,34 +1,73 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="container">
-    <h1>Fee Payment</h1>
+{% block title %}Fee Payment - SmartCollege{% endblock %}
 
-    <div style="margin: 20px 0;">
-        <a href="{% url 'view_payment_history' %}" class="btn btn-secondary">View Payment History</a>
+{% block content %}
+<div style="max-width: 1200px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="margin-bottom: 5px;">💳 Fee Payment Center</h1>
+            <p style="color: var(--text-secondary); margin: 0;">Manage your tuition and fee payments securely</p>
+        </div>
+        <a href="{% url 'view_payment_history' %}" class="btn" style="display: flex; align-items: center; gap: 8px;">
+            📊 Payment History
+        </a>
     </div>
 
     {% if fee_structures %}
-    <div class="dashboard-grid">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
         {% for fee in fee_structures %}
-        <div class="card">
-            <h3>{{ fee.name }}</h3>
-            <p><strong>Amount:</strong> ${{ fee.amount }}</p>
-            <p><strong>Description:</strong> {{ fee.description }}</p>
-            <p><strong>Due Date:</strong> {{ fee.due_date }}</p>
+        <div style="background: var(--card-bg); border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px var(--shadow); border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 16px var(--shadow)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px var(--shadow)';">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                <div>
+                    <h3 style="margin: 0 0 8px 0; font-size: 20px; color: var(--text-color);">{{ fee.name }}</h3>
+                    <p style="margin: 0; font-size: 14px; color: var(--text-secondary);">Due: {{ fee.due_date|date:"M d, Y" }}</p>
+                </div>
+                {% if fee.id in paid_fees %}
+                <span style="background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">✓ PAID</span>
+                {% else %}
+                <span style="background: #fff3cd; color: #856404; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold;">⏳ PENDING</span>
+                {% endif %}
+            </div>
             
-            {% if fee.id in paid_fees %}
-            <button class="btn btn-success" disabled>✓ Paid</button>
-            {% else %}
-            <a href="{% url 'make_payment' fee.id %}" class="btn">Pay Now</a>
-            {% endif %}
+            <div style="margin: 20px 0; padding: 20px; background: linear-gradient(135deg, var(--primary-color) 0%, #764ba2 100%); border-radius: 8px; color: white;">
+                <p style="margin: 0; font-size: 14px; opacity: 0.9;">Amount Due</p>
+                <p style="margin: 8px 0 0 0; font-size: 32px; font-weight: bold;">₹{{ fee.amount }}</p>
+            </div>
+            
+            <p style="color: var(--text-secondary); font-size: 14px; margin: 15px 0; line-height: 1.6;">{{ fee.description }}</p>
+            
+            <div style="margin-top: 20px;">
+                {% if fee.id in paid_fees %}
+                <button class="btn btn-success" disabled style="width: 100%; cursor: not-allowed; opacity: 0.7;">✓ Payment Completed</button>
+                {% else %}
+                <a href="{% url 'make_payment' fee.id %}" class="btn" style="width: 100%; text-align: center; background: linear-gradient(135deg, var(--primary-color) 0%, #764ba2 100%); padding: 14px;">
+                    💳 Pay Now Securely
+                </a>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <div class="card">
-        <p>No fees available at this time.</p>
+    <div style="background: var(--card-bg); border-radius: 12px; padding: 60px; text-align: center; box-shadow: 0 2px 8px var(--shadow);">
+        <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;">💰</div>
+        <h3 style="margin: 0 0 10px 0; color: var(--text-color);">No Fees Available</h3>
+        <p style="margin: 0; color: var(--text-secondary);">There are no fee structures assigned at this time. Check back later or contact the administration.</p>
     </div>
     {% endif %}
+
+    <div style="margin-top: 30px; background: var(--card-bg); border-radius: 12px; padding: 20px; border-left: 4px solid var(--primary-color);">
+        <h4 style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+            <span>🔒</span> Secure Payment Information
+        </h4>
+        <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); font-size: 14px; line-height: 1.8;">
+            <li>All payments are processed through Razorpay's secure payment gateway</li>
+            <li>We support Credit/Debit Cards, UPI, Net Banking, and Digital Wallets</li>
+            <li>Your payment data is encrypted and never stored on our servers</li>
+            <li>Instant receipt generation upon successful payment</li>
+            <li>24/7 payment support available for any issues</li>
+        </ul>
+    </div>
 </div>
 {% endblock %}

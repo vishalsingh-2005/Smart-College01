@@ -85,12 +85,12 @@
         </div>
         {% endif %}
         
-        {% if role == 'student' or role == 'admin' or role == 'teacher' %}
+        {% if role == 'student' or role == 'teacher' %}
         <div class="dashboard-card">
             <h3>📋 Attendance</h3>
             <p>Track and manage attendance</p>
             <a href="{% url 'view_attendance' %}" class="btn">View Attendance</a>
-            {% if role == 'admin' or role == 'teacher' %}
+            {% if role == 'teacher' %}
             <a href="{% url 'mark_attendance_manual' %}" class="btn btn-success">Mark Attendance</a>
             <a href="{% url 'attendance_report' %}" class="btn">Attendance Report</a>
             {% endif %}
@@ -109,12 +109,6 @@
             <h3>📝 Assignments</h3>
             <p>View and submit assignments</p>
             <a href="{% url 'view_assignments' %}" class="btn">View Assignments</a>
-        </div>
-        
-        <div class="dashboard-card">
-            <h3>🚌 Bus Tracker</h3>
-            <p>Track school bus location</p>
-            <a href="{% url 'view_bus_tracker' %}" class="btn">Track Bus</a>
         </div>
         {% endif %}
         
