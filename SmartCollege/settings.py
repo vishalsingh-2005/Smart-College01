@@ -31,7 +31,10 @@ import os
 CSRF_TRUSTED_ORIGINS = []
 if 'REPLIT_DOMAINS' in os.environ:
     for domain in os.environ['REPLIT_DOMAINS'].split(','):
-        CSRF_TRUSTED_ORIGINS.append(f'https://{domain.strip()}')
+        domain = domain.strip()
+        CSRF_TRUSTED_ORIGINS.append(f'https://{domain}')
+        if 'replit.dev' in domain:
+            CSRF_TRUSTED_ORIGINS.append(f'https://{domain.replace("replit.dev", "repl.co")}')
 
 
 # Application definition
