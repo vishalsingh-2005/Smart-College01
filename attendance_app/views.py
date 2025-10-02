@@ -14,11 +14,52 @@ def view_attendance(request):
     profile = request.user.profile
     
     if profile.role == 'student':
-        attendance_records = Attendance.objects.filter(student=request.user).order_by('-date')
+        all_records = list(Attendance.objects.filter(student=request.user).order_by('-date', '-time'))
+        
+        status_priority = {'absent': 3, 'late': 2, 'present': 1}
+        date_status = {}
+        for record in all_records:
+            if record.date not in date_status:
+                date_status[record.date] = record.status
+            else:
+                current_priority = status_priority.get(date_status[record.date], 0)
+                new_priority = status_priority.get(record.status, 0)
+                if new_priority > current_priority:
+                    date_status[record.date] = record.status
+        
+        total_present = sum(1 for status in date_status.values() if status == 'present')
+        total_absent = sum(1 for status in date_status.values() if status == 'absent')
+        total_late = sum(1 for status in date_status.values() if status == 'late')
+        total_days = len(date_status)
+        
+        attendance_percentage = (total_present / total_days * 100) if total_days > 0 else 0
+        
+        last_30_days = date.today() - timedelta(days=30)
+        recent_dates = sorted([d for d in date_status.keys() if d >= last_30_days])
+        
+        chart_labels = []
+        chart_data = []
+        for att_date in recent_dates:
+            chart_labels.append(att_date.strftime('%b %d'))
+            chart_data.append(1 if date_status[att_date] == 'present' else 0)
+        
+        attendance_records = all_records
+        
+        context = {
+            'attendance_records': attendance_records,
+            'total_present': total_present,
+            'total_absent': total_absent,
+            'total_late': total_late,
+            'total_days': total_days,
+            'attendance_percentage': round(attendance_percentage, 1),
+            'chart_labels': json.dumps(chart_labels),
+            'chart_data': json.dumps(chart_data),
+        }
     else:
         attendance_records = Attendance.objects.all().order_by('-date')
+        context = {'attendance_records': attendance_records}
     
-    return render(request, 'attendance_app/view_attendance.html', {'attendance_records': attendance_records})
+    return render(request, 'attendance_app/view_attendance.html', context)
 
 @login_required
 def attendance_report(request):
