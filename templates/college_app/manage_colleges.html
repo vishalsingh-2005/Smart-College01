@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Colleges - SmartCollege{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Manage College Information</h1>
+    <a href="{% url 'create_college' %}" class="btn btn-success" style="margin-bottom: 20px;">Add New College</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>College Name</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Established Year</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for college in colleges %}
+            <tr>
+                <td>{{ college.name }}</td>
+                <td>{{ college.location }}</td>
+                <td>{{ college.college_type|default:"N/A" }}</td>
+                <td>{{ college.established_year|default:"N/A" }}</td>
+                <td>
+                    <a href="{% url 'edit_college' college.id %}" class="btn btn-small">Edit</a>
+                    <a href="{% url 'delete_college' college.id %}" class="btn btn-small btn-danger" onclick="return confirm('Are you sure you want to delete this college information?')">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center;">No colleges found. Add your first college!</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary" style="margin-top: 20px;">Back to Dashboard</a>
+</div>
+{% endblock %}
