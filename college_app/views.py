@@ -63,6 +63,9 @@ def login_view(request):
         
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            if not user.is_active:
+                messages.error(request, 'Your account has been deactivated. Please contact admin.')
+                return render(request, 'college_app/login.html')
             login(request, user)
             return redirect('dashboard')
         else:
@@ -746,3 +749,39 @@ def view_assignment_submissions(request, assignment_id):
         'submissions': submissions,
     }
     return render(request, 'college_app/view_assignment_submissions.html', context)
+
+
+@login_required
+def manage_users(request):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can manage users')
+        return redirect('dashboard')
+    
+    users = User.objects.select_related('profile').exclude(id=request.user.id).order_by('-date_joined')
+    
+    context = {
+        'users': users,
+    }
+    return render(request, 'college_app/manage_users.html', context)
+
+
+@login_required
+def toggle_user_status(request, user_id):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can manage users')
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        user = get_object_or_404(User, id=user_id)
+        
+        if user.id == request.user.id:
+            messages.error(request, 'You cannot deactivate your own account')
+            return redirect('manage_users')
+        
+        user.is_active = not user.is_active
+        user.save()
+        
+        status = 'activated' if user.is_active else 'deactivated'
+        messages.success(request, f'User {user.username} has been {status} successfully')
+    
+    return redirect('manage_users')

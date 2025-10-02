@@ -12,6 +12,8 @@ urlpatterns = [
     path('manage/create-invite/', views.create_user_invite, name='create_invite'),
     path('manage/invites/', views.manage_invites, name='manage_invites'),
     path('manage/delete-invite/<int:invite_id>/', views.delete_invite, name='delete_invite'),
+    path('manage/users/', views.manage_users, name='manage_users'),
+    path('manage/toggle-user-status/<int:user_id>/', views.toggle_user_status, name='toggle_user_status'),
     
     # Admin - Fee Management
     path('manage/fee-structures/', views.manage_fee_structures, name='manage_fee_structures'),
