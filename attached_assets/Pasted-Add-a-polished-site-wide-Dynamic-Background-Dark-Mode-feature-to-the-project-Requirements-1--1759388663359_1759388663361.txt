@@ -1,0 +1,34 @@
+Add a polished site-wide Dynamic Background + Dark Mode feature to the project. Requirements:
+
+1. Dynamic background (Home page default):
+   - Implement an animated gradient background (smooth, subtle color shifts).
+   - Provide an optional lightweight particle effect or slow image slideshow as an alternative — build as modular options so developer can switch (gradient by default).
+   - Background must be GPU-accelerated and performant (use CSS transforms & animation; avoid expensive layout paints).
+   - Provide a toggle in code to switch between: "animated-gradient", "particles", and "image-slideshow".
+
+2. Dark mode:
+   - Add a visible toggle button (floating / top-right) labeled with icon and accessible label (aria-label).
+   - Respect user's OS preference using `prefers-color-scheme` on first load.
+   - Persist user choice in `localStorage` so it remains across visits.
+   - Use CSS custom properties (variables) for colors, and a `.dark` class on `<html>` or `<body>` to switch themes.
+   - Ensure all UI components (text, cards, buttons, inputs) automatically read from variables and have sufficient contrast in both modes.
+
+3. Smooth transitions & accessibility:
+   - Transitions between themes and background states must be smooth (use `transition` on color/opacity, not layout).
+   - Provide a high-contrast fallback (for users who prefer reduced motion or high-contrast).
+   - Support `prefers-reduced-motion` to disable or reduce animation intensity.
+   - Keyboard-accessible toggle (enter/space activates), and visible focus styles.
+
+4. Implementation notes:
+   - Provide plain HTML/CSS/JS and a React variant (React + Tailwind-ready) so I can paste into either project.
+   - Use minimal external libraries (particles optional: use a very small lib or an inlined lightweight canvas script).
+   - Document the steps to enable/disable particle/slideshow variants, and how to change color palette.
+   - Include performance advice: limit particle count on mobile, pause animations on background tabs, and use `will-change` carefully.
+
+5. Deliverables:
+   - `index.html` (or React component) with dynamic background + dark mode toggle + persistence.
+   - `styles.css` (or Tailwind + CSS variables snippet) showing variables for `--bg`, `--text`, `--muted`, `--accent`.
+   - `theme.js` (or React hook) that: detects `prefers-color-scheme`, reads/writes `localStorage`, toggles `.dark`, and handles reduced motion.
+   - Short README comment at top explaining how to change palettes and switch background modes.
+
+Make the UI modern and subtle — not distracting from content. Keep animations subtle and battery-friendly. Output both a plain HTML/JS example and a React/Tailwind-ready component.

@@ -66,6 +66,8 @@ class Payment(models.Model):
     fee_structure = models.ForeignKey(FeeStructure, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=50, default='cash')
+    account_number = models.CharField(max_length=20, blank=True)
+    ifsc_code = models.CharField(max_length=11, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     transaction_id = models.CharField(max_length=100, blank=True)
     payment_date = models.DateTimeField(auto_now_add=True)
@@ -161,3 +163,30 @@ class Submission(models.Model):
     
     def __str__(self):
         return f"{self.student.username} - {self.assignment.title}"
+
+
+class CollegeInfo(models.Model):
+    name = models.CharField(max_length=300, unique=True)
+    location = models.CharField(max_length=200)
+    established_year = models.IntegerField(null=True, blank=True)
+    college_type = models.CharField(max_length=100, blank=True)
+    placement_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    avg_package = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    highest_package = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    hostel_fees = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    tuition_fees = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    admission_process = models.TextField(blank=True)
+    courses_offered = models.TextField(blank=True)
+    facilities = models.TextField(blank=True)
+    contact_email = models.EmailField(blank=True)
+    contact_phone = models.CharField(max_length=20, blank=True)
+    website = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = 'College Information'
+    
+    def __str__(self):
+        return self.name

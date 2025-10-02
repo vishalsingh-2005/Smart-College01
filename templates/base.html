@@ -45,7 +45,72 @@
         {% block content %}{% endblock %}
     </div>
 
+    <div id="chatbot-container" style="display: none; position: fixed; bottom: 90px; right: 30px; width: 350px; max-height: 500px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 9999; display: flex; flex-direction: column;">
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px 15px 0 0;">
+            <h3 style="margin: 0;">🎓 College Info Bot</h3>
+            <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;">Ask about any college</p>
+        </div>
+        <div id="chatbot-messages" style="flex: 1; padding: 20px; overflow-y: auto; max-height: 300px; background: #f9f9f9;">
+            <p style="color: #666; font-size: 14px;">👋 Hi! Ask me about any college (e.g., "Tell me about IIT Delhi")</p>
+        </div>
+        <form id="chatbot-form" style="padding: 15px; border-top: 1px solid #eee; background: white; border-radius: 0 0 15px 15px;">
+            {% csrf_token %}
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chatbot-input" placeholder="Type college name..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none;" required>
+                <button type="submit" style="padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">Send</button>
+            </div>
+        </form>
+    </div>
+
+    <button id="chatbot-toggle" style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 9998; display: flex; align-items: center; justify-content: center;">
+        💬
+    </button>
+
     <script src="{% static 'js/theme.js' %}"></script>
+    <script>
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    const chatbotContainer = document.getElementById('chatbot-container');
+    const chatbotForm = document.getElementById('chatbot-form');
+    const chatbotInput = document.getElementById('chatbot-input');
+    const chatbotMessages = document.getElementById('chatbot-messages');
+
+    chatbotToggle.addEventListener('click', () => {
+        const isVisible = chatbotContainer.style.display !== 'none';
+        chatbotContainer.style.display = isVisible ? 'none' : 'flex';
+        if (!isVisible) {
+            chatbotInput.focus();
+        }
+    });
+
+    chatbotForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = chatbotInput.value.trim();
+        if (!query) return;
+
+        chatbotMessages.innerHTML += `<div style="margin-bottom: 10px; text-align: right;"><span style="background: #667eea; color: white; padding: 8px 12px; border-radius: 15px; display: inline-block; max-width: 80%;">${query}</span></div>`;
+        chatbotInput.value = '';
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+        try {
+            const formData = new FormData();
+            formData.append('query', query);
+            formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+            const response = await fetch('{% url "chatbot_query" %}', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+            const botResponse = data.response || data.error || 'Error processing request';
+            
+            chatbotMessages.innerHTML += `<div style="margin-bottom: 10px;"><span style="background: white; color: #333; padding: 8px 12px; border-radius: 15px; display: inline-block; max-width: 80%; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">${botResponse}</span></div>`;
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        } catch (error) {
+            chatbotMessages.innerHTML += `<div style="margin-bottom: 10px;"><span style="background: #ffebee; color: #c62828; padding: 8px 12px; border-radius: 15px; display: inline-block; max-width: 80%;">Error: Could not process your request</span></div>`;
+        }
+    });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

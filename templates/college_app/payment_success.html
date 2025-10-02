@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Successful - SmartCollege{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 40px auto;">
+    <div class="card" style="text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px;">
+        <div style="font-size: 80px; margin-bottom: 20px;">✅</div>
+        <h1 style="color: white; margin-bottom: 10px;">Payment Successful!</h1>
+        <p style="font-size: 18px; opacity: 0.9;">Your payment has been processed successfully</p>
+    </div>
+
+    <div class="card" style="margin-top: 30px; padding: 30px;">
+        <h2 style="margin-bottom: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 15px;">Transaction Details</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+            <div>
+                <p style="color: #666; margin-bottom: 5px; font-size: 14px;">Receipt Number</p>
+                <p style="font-size: 18px; font-weight: bold; color: #333;">{{ payment.receipt_number }}</p>
+            </div>
+            <div>
+                <p style="color: #666; margin-bottom: 5px; font-size: 14px;">Transaction ID</p>
+                <p style="font-size: 18px; font-weight: bold; color: #333;">{{ payment.transaction_id }}</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+            <div>
+                <p style="color: #666; margin-bottom: 5px; font-size: 14px;">Fee Type</p>
+                <p style="font-size: 16px; color: #333;">{{ payment.fee_structure.name }}</p>
+            </div>
+            <div>
+                <p style="color: #666; margin-bottom: 5px; font-size: 14px;">Amount Paid</p>
+                <p style="font-size: 24px; font-weight: bold; color: #28a745;">${{ payment.amount }}</p>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+            <div>
+                <p style="color: #666; margin-bottom: 5px; font-size: 14px;">Payment Method</p>
+                <p style="font-size: 16px; color: #333;">{{ payment.payment_method|title }}</p>
+            </div>
+            <div>
+                <p style="color: #666; margin-bottom: 5px; font-size: 14px;">Payment Date</p>
+                <p style="font-size: 16px; color: #333;">{{ payment.payment_date|date:"F d, Y - h:i A" }}</p>
+            </div>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <p style="color: #666; margin-bottom: 5px; font-size: 14px;">Account Number</p>
+                    <p style="font-size: 16px; color: #333; font-family: monospace;">**** **** {{ payment.account_number|slice:"-4:" }}</p>
+                </div>
+                <div>
+                    <p style="color: #666; margin-bottom: 5px; font-size: 14px;">IFSC Code</p>
+                    <p style="font-size: 16px; color: #333; font-family: monospace;">{{ payment.ifsc_code }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px; padding: 20px; background: #fff3cd; border-left: 4px solid #ffc107;">
+        <p style="margin: 0; color: #856404;">
+            <strong>📄 Note:</strong> Please save this receipt number for your records. 
+            You can view this transaction anytime in your payment history.
+        </p>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+        <a href="{% url 'view_payment_history' %}" class="btn" style="background: #667eea;">View Payment History</a>
+        <a href="{% url 'view_student_fees' %}" class="btn btn-secondary">View Other Fees</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-success">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

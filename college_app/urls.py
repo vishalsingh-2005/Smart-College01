@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import chatbot_views
 
 urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
@@ -19,11 +20,24 @@ urlpatterns = [
     # Student - Fee Payment
     path('student/fees/', views.view_student_fees, name='view_student_fees'),
     path('student/make-payment/<int:fee_id>/', views.make_payment, name='make_payment'),
+    path('student/payment-success/<int:payment_id>/', views.payment_success, name='payment_success'),
     path('student/payment-history/', views.view_payment_history, name='view_payment_history'),
     
-    # Notices and Bulletins
+    # Notices and Bulletins - View Only
     path('notices/', views.view_notices, name='view_notices'),
     path('bulletins/', views.view_bulletins, name='view_bulletins'),
+    
+    # Admin - Notice Management
+    path('manage/notices/', views.manage_notices, name='manage_notices'),
+    path('manage/create-notice/', views.create_notice, name='create_notice'),
+    path('manage/edit-notice/<int:notice_id>/', views.edit_notice, name='edit_notice'),
+    path('manage/delete-notice/<int:notice_id>/', views.delete_notice, name='delete_notice'),
+    
+    # Admin - Bulletin Management
+    path('manage/bulletins/', views.manage_bulletins, name='manage_bulletins'),
+    path('manage/create-bulletin/', views.create_bulletin, name='create_bulletin'),
+    path('manage/edit-bulletin/<int:bulletin_id>/', views.edit_bulletin, name='edit_bulletin'),
+    path('manage/delete-bulletin/<int:bulletin_id>/', views.delete_bulletin, name='delete_bulletin'),
     
     # Student - Bus Tracker
     path('student/bus-tracker/', views.view_bus_tracker, name='view_bus_tracker'),
@@ -37,4 +51,13 @@ urlpatterns = [
     path('teacher/assignments/', views.view_teacher_assignments, name='view_teacher_assignments'),
     path('teacher/grade-assignment/<int:submission_id>/', views.grade_assignment, name='grade_assignment'),
     path('teacher/view-submissions/<int:assignment_id>/', views.view_assignment_submissions, name='view_assignment_submissions'),
+    
+    # Chatbot
+    path('chatbot/query/', chatbot_views.chatbot_query, name='chatbot_query'),
+    
+    # Admin - College Information Management
+    path('manage/colleges/', chatbot_views.manage_colleges, name='manage_colleges'),
+    path('manage/create-college/', chatbot_views.create_college, name='create_college'),
+    path('manage/edit-college/<int:college_id>/', chatbot_views.edit_college, name='edit_college'),
+    path('manage/delete-college/<int:college_id>/', chatbot_views.delete_college, name='delete_college'),
 ]

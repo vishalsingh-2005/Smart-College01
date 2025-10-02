@@ -8,7 +8,8 @@ from django.db.models import Q
 from datetime import datetime
 import uuid
 from .models import (Profile, UserInvite, FeeStructure, Payment, Notice, 
-                     Bulletin, BusRoute, BusLocation, Assignment, Submission)
+                     Bulletin, BusRoute, BusLocation, Assignment, Submission, CollegeInfo)
+from django.http import JsonResponse
 
 
 def signup_view(request):
@@ -244,23 +245,45 @@ def make_payment(request, fee_id):
     
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
+        account_number = request.POST.get('account_number', '').strip()
+        ifsc_code = request.POST.get('ifsc_code', '').strip().upper()
+        
+        if not account_number or not ifsc_code:
+            messages.error(request, 'Account Number and IFSC Code are required')
+            return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
+        
+        if not account_number.isdigit() or len(account_number) < 9 or len(account_number) > 18:
+            messages.error(request, 'Invalid Account Number. It should be 9-18 digits')
+            return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
+        
+        if len(ifsc_code) != 11 or not ifsc_code[:4].isalpha() or not ifsc_code[4] == '0' or not ifsc_code[5:].isalnum():
+            messages.error(request, 'Invalid IFSC Code. Format: ABCD0123456')
+            return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
         
         receipt_number = f"RCPT-{uuid.uuid4().hex[:8].upper()}"
+        transaction_id = f"TXN-{uuid.uuid4().hex[:12].upper()}"
         
-        Payment.objects.create(
+        payment = Payment.objects.create(
             student=request.user,
             fee_structure=fee_structure,
             amount=fee_structure.amount,
             payment_method=payment_method,
+            account_number=account_number,
+            ifsc_code=ifsc_code,
             status='completed',
             receipt_number=receipt_number,
-            transaction_id=f"TXN-{uuid.uuid4().hex[:12].upper()}"
+            transaction_id=transaction_id
         )
         
-        messages.success(request, f'Payment successful! Receipt Number: {receipt_number}')
-        return redirect('view_payment_history')
+        return redirect('payment_success', payment_id=payment.id)
     
     return render(request, 'college_app/make_payment.html', {'fee_structure': fee_structure})
+
+
+@login_required
+def payment_success(request, payment_id):
+    payment = get_object_or_404(Payment, id=payment_id, student=request.user)
+    return render(request, 'college_app/payment_success.html', {'payment': payment})
 
 
 @login_required
@@ -297,6 +320,145 @@ def view_notices(request):
 def view_bulletins(request):
     bulletins = Bulletin.objects.all().order_by('-created_at')
     return render(request, 'college_app/view_bulletins.html', {'bulletins': bulletins})
+
+
+@login_required
+def manage_notices(request):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can manage notices')
+        return redirect('dashboard')
+    
+    notices = Notice.objects.all().order_by('-created_at')
+    return render(request, 'college_app/manage_notices.html', {'notices': notices})
+
+
+@login_required
+def create_notice(request):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can create notices')
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        target_role = request.POST.get('target_role', '')
+        expires_at = request.POST.get('expires_at')
+        
+        Notice.objects.create(
+            title=title,
+            content=content,
+            posted_by=request.user,
+            target_role=target_role,
+            expires_at=expires_at if expires_at else None
+        )
+        
+        messages.success(request, 'Notice created successfully')
+        return redirect('manage_notices')
+    
+    return render(request, 'college_app/create_notice.html')
+
+
+@login_required
+def edit_notice(request, notice_id):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can edit notices')
+        return redirect('dashboard')
+    
+    notice = get_object_or_404(Notice, id=notice_id)
+    
+    if request.method == 'POST':
+        notice.title = request.POST.get('title')
+        notice.content = request.POST.get('content')
+        notice.target_role = request.POST.get('target_role', '')
+        expires_at = request.POST.get('expires_at')
+        notice.expires_at = expires_at if expires_at else None
+        notice.is_active = request.POST.get('is_active') == 'on'
+        notice.save()
+        
+        messages.success(request, 'Notice updated successfully')
+        return redirect('manage_notices')
+    
+    return render(request, 'college_app/edit_notice.html', {'notice': notice})
+
+
+@login_required
+def delete_notice(request, notice_id):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can delete notices')
+        return redirect('dashboard')
+    
+    notice = get_object_or_404(Notice, id=notice_id)
+    notice.delete()
+    messages.success(request, 'Notice deleted successfully')
+    return redirect('manage_notices')
+
+
+@login_required
+def manage_bulletins(request):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can manage bulletins')
+        return redirect('dashboard')
+    
+    bulletins = Bulletin.objects.all().order_by('-created_at')
+    return render(request, 'college_app/manage_bulletins.html', {'bulletins': bulletins})
+
+
+@login_required
+def create_bulletin(request):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can create bulletins')
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+        
+        Bulletin.objects.create(
+            title=title,
+            content=content,
+            image=image,
+            posted_by=request.user
+        )
+        
+        messages.success(request, 'Bulletin created successfully')
+        return redirect('manage_bulletins')
+    
+    return render(request, 'college_app/create_bulletin.html')
+
+
+@login_required
+def edit_bulletin(request, bulletin_id):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can edit bulletins')
+        return redirect('dashboard')
+    
+    bulletin = get_object_or_404(Bulletin, id=bulletin_id)
+    
+    if request.method == 'POST':
+        bulletin.title = request.POST.get('title')
+        bulletin.content = request.POST.get('content')
+        image = request.FILES.get('image')
+        if image:
+            bulletin.image = image
+        bulletin.save()
+        
+        messages.success(request, 'Bulletin updated successfully')
+        return redirect('manage_bulletins')
+    
+    return render(request, 'college_app/edit_bulletin.html', {'bulletin': bulletin})
+
+
+@login_required
+def delete_bulletin(request, bulletin_id):
+    if request.user.profile.role != 'admin':
+        messages.error(request, 'Only admins can delete bulletins')
+        return redirect('dashboard')
+    
+    bulletin = get_object_or_404(Bulletin, id=bulletin_id)
+    bulletin.delete()
+    messages.success(request, 'Bulletin deleted successfully')
+    return redirect('manage_bulletins')
 
 
 @login_required

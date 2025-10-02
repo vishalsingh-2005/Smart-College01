@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Notice - SmartCollege{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px;">
+    <h1>Edit Notice</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="title">Title: *</label>
+            <input type="text" id="title" name="title" value="{{ notice.title }}" required>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <label for="content">Content: *</label>
+            <textarea id="content" name="content" rows="8" required>{{ notice.content }}</textarea>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <label for="target_role">Target Role:</label>
+            <select id="target_role" name="target_role">
+                <option value="" {% if not notice.target_role %}selected{% endif %}>All Users</option>
+                <option value="student" {% if notice.target_role == 'student' %}selected{% endif %}>Students Only</option>
+                <option value="teacher" {% if notice.target_role == 'teacher' %}selected{% endif %}>Teachers Only</option>
+                <option value="doctor" {% if notice.target_role == 'doctor' %}selected{% endif %}>Doctors Only</option>
+                <option value="admin" {% if notice.target_role == 'admin' %}selected{% endif %}>Admins Only</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <label for="expires_at">Expiration Date:</label>
+            <input type="datetime-local" id="expires_at" name="expires_at" value="{{ notice.expires_at|date:'Y-m-d\TH:i' }}">
+            <small style="display: block; color: #666;">Leave empty for notice to never expire</small>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <label>
+                <input type="checkbox" name="is_active" {% if notice.is_active %}checked{% endif %}>
+                Active
+            </label>
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 20px;">Update Notice</button>
+        <a href="{% url 'manage_notices' %}" class="btn btn-secondary" style="margin-top: 20px;">Cancel</a>
+    </form>
+</div>
+{% endblock %}
